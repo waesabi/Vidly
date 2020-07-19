@@ -15,10 +15,11 @@ router.post('/', async (req, res) => {
   if (!validPassword) {
     res.status(400).send('Invalid or email password.');
   }
-  res.send(true);
+  const token = user.generateAuthToken();
+  res.send({ token });
 });
-// we can use password complexity - npm i joi-password-complexity
 
+// we can use password complexity - npm i joi-password-complexity
 function validate(req) {
   const schema = Joi.object({
     email: Joi.string().required().min(10).max(255).email(),

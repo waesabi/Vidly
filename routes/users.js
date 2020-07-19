@@ -1,3 +1,4 @@
+const auth = require('../middleware/auth');
 const _ = require('lodash');
 const bcrypt = require('bcrypt');
 const { User, validate } = require('../models/user');
@@ -17,8 +18,16 @@ router.post('/', async (req, res) => {
   const hash = await bcrypt.hash(user.password, salt);
   user.password = hash;
   await user.save();
-  return res.send(_.pick(user, ['_id', 'name', 'email']));
+  const token = user.generateAuthToken();
+  res
+    .header('x-auth-token', token)
+    .send(_.pick(user, ['_id', 'name', 'email']));
 });
 // we can use password complexity - npm i joi-password-complexity
+
+router.get('/me', auth, async (req, res) => {
+  const user = await User.findById(req.user._id).select('-password');
+  res.send(user);
+});
 
 module.exports = router;

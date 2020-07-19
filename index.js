@@ -1,3 +1,4 @@
+const config = require('config');
 const express = require('express');
 const mongoose = require('mongoose');
 const Joi = require('@hapi/joi');
@@ -13,6 +14,11 @@ const users = require('./routes/users');
 const auth = require('./routes/auth');
 
 const app = express();
+
+if (!config.get('jwtPrivateKey')) {
+  console.error('FATAL ERROR: Jwt rivate Key not defines');
+  process.exit(1);
+}
 
 mongoose
   .connect('mongodb://localhost/Vidley')

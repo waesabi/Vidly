@@ -1,31 +1,37 @@
-const express = require("express");
-const { Genre, validate } = require("../models/genre");
+const admin = require('../middleware/admin');
+const auth = require('../middleware/auth');
+const express = require('express');
+const { Genre, validate } = require('../models/genre');
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  const genres = await Genre.find().sort("name");
+router.get('/', async (req, res) => {
+  const genres = await Genre.find().sort('name');
   res.send(genres);
 });
 
-router.get("/:id", async (req, res) => {
+router.get('/:id', async (req, res) => {
   const genre = await Genre.findById(req.params.id);
-  if (!genre) {
-    return res.status(404).send("Genre is not found");
+  if (genre) {
+    return res.status(404).send('Genre is not found');
   }
   res.send(genre);
 });
 
-router.post("/", async (req, res) => {
+router.post('/', auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     return res.status(400).send(error);
   }
-  const genre = new Genre({ name: req.body.name });
+  let genre = await Genre.findOne({ name: req.body.name });
+  if (genre) {
+    return res.status(400).send({ message: 'Genre already exist.' });
+  }
+  genre = new Genre({ name: req.body.name });
   await genre.save();
   return res.send(genre);
 });
 
-router.put("/:id", async (req, res) => {
+router.put('/:id', async (req, res) => {
   const { error } = validate(req.body);
   if (error) {
     return res.status(400).send(error);
@@ -36,15 +42,15 @@ router.put("/:id", async (req, res) => {
     { new: true }
   );
   if (!genre) {
-    return res.status(404).send("Genre is not found");
+    return res.status(404).send('Genre is not found');
   }
   res.send(genre);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
   const genre = await Genre.findByIdAndRemove(req.params.id);
   if (!genre) {
-    return res.status(404).send("Genre is not found");
+    return res.status(404).send('Genre is not found');
   }
   res.send(genre);
 });
