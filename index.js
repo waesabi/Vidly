@@ -16,7 +16,7 @@ const auth = require('./routes/auth');
 const app = express();
 
 if (!config.get('jwtPrivateKey')) {
-  console.error('FATAL ERROR: Jwt rivate Key not defines');
+  console.error('FATAL ERROR: Jwt private Key not defines');
   process.exit(1);
 }
 

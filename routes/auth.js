@@ -16,7 +16,10 @@ router.post('/', async (req, res) => {
     res.status(400).send('Invalid or email password.');
   }
   const token = user.generateAuthToken();
-  res.send({ token });
+  res.send({
+    succeed: true,
+    token,
+  });
 });
 
 // we can use password complexity - npm i joi-password-complexity
